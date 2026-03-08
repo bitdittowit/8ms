@@ -731,7 +731,11 @@
 
     // ===================== AUDIO =====================
     let actx;
-    function ac() { if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); return actx; }
+    function ac() {
+      if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+      if(actx.state === 'suspended') actx.resume();
+      return actx;
+    }
     function pn(ctx,f,t,d,v,tp='sine') {
       const o=ctx.createOscillator(), g=ctx.createGain();
       o.type=tp; o.frequency.value=f;
@@ -1034,17 +1038,23 @@
     document.getElementById('dots').addEventListener('click', openLetter);
     document.getElementById('dots').addEventListener('touchend', openLetter);
 
-    document.querySelector('#letter .close-btn').addEventListener('click', (e) => {
+    function closeLetter(e) {
       e.stopPropagation();
+      e.preventDefault();
       document.getElementById('letter').classList.remove('open');
-    });
+    }
+    document.querySelector('#letter .close-btn').addEventListener('click', closeLetter);
+    document.querySelector('#letter .close-btn').addEventListener('touchend', closeLetter);
 
-    document.getElementById('letter').addEventListener('click', (e) => {
+    function closeLetterBg(e) {
       e.stopPropagation();
       if (e.target === e.currentTarget) {
+        e.preventDefault();
         document.getElementById('letter').classList.remove('open');
       }
-    });
+    }
+    document.getElementById('letter').addEventListener('click', closeLetterBg);
+    document.getElementById('letter').addEventListener('touchend', closeLetterBg);
 
     let eeActive = false;
     function toggleEE(e) {
